@@ -11,6 +11,7 @@
   "main": "./index.js",
   "dependencies": {
     "lodash.defaults": "^4.2.0",
+    "slash": "^3.0.0",
     "through2": "^2.0.1"
   },
   "devDependencies": {

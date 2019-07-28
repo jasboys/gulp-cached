@@ -1,17 +1,20 @@
 var crypto = require('crypto');
 var defaults = require('lodash.defaults');
 var through = require('through2');
+var path = require('path');
+var slash = require('slash');
 
-var plugin = function(name, opt){
+var plugin = function (name, opt) {
   var opts = defaults(opt || {}, {
-    optimizeMemory: false
+    optimizeMemory: false,
+    cwd: '',
   });
 
   if (!plugin.caches[name]) {
     plugin.caches[name] = {};
   }
 
-  var stream = through.obj(function(file, enc, callback){
+  var stream = through.obj(function (file, enc, callback) {
     var contents = file.checksum;
 
     if (!contents) {
@@ -29,8 +32,8 @@ var plugin = function(name, opt){
         }
       }
     }
-
-    var cacheFile = plugin.caches[name][file.path];
+    var filePath = opts.cwd ? slash(path.relative(opts.cwd, file.path)) : file.path;
+    var cacheFile = plugin.caches[name][filePath];
 
     // hit - ignore it
     if (typeof cacheFile !== 'undefined' && cacheFile === contents) {
@@ -39,7 +42,7 @@ var plugin = function(name, opt){
     }
 
     // miss - add it and pass it through
-    plugin.caches[name][file.path] = contents;
+    plugin.caches[name][filePath] = contents;
     this.push(file);
     callback();
   });
